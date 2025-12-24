@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from 'react'
-import { Booking, BookingType, BookingStatus, AvailableTime, Memory, ChecklistTemplate, ChecklistItem } from '../lib/supabase'
+import { Booking, BookingType, BookingStatus, AvailableTime, Memory, ChecklistTemplate } from '../lib/supabase'
 
 interface DataContextType {
   bookings: Booking[]

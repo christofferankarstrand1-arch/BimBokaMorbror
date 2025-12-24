@@ -15,24 +15,6 @@ import { Admin } from './pages/Admin'
 import { BimDashboard } from './pages/BimDashboard'
 import { MorbrorDashboard } from './pages/MorbrorDashboard'
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth()
-  
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-warm-50">
-        <div className="text-sage-600">Laddar...</div>
-      </div>
-    )
-  }
-  
-  if (!user) {
-    return <Navigate to="/login" replace />
-  }
-  
-  return <>{children}</>
-}
-
 function AppRoutes() {
   const { user, isBim, isMorbror } = useAuth()
 

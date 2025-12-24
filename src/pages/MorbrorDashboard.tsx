@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Check, X, CheckCircle, Calendar, Clock } from 'lucide-react'
 import { useData } from '../contexts/DataContext'
-import { BookingType, BookingStatus } from '../lib/supabase'
+import { BookingType } from '../lib/supabase'
 
 const TYPE_LABELS: Record<BookingType, string> = {
   barnpassning: 'Barnpassning',
@@ -12,13 +12,6 @@ const TYPE_LABELS: Record<BookingType, string> = {
   akuthjalp: 'Akuthjalp',
 }
 
-const STATUS_LABELS: Record<BookingStatus, string> = {
-  utkast: 'Utkast',
-  forfragan: 'Forfragan',
-  godkand: 'Godkand',
-  avslagen: 'Avslagen',
-  genomford: 'Genomford',
-}
 
 export function MorbrorDashboard() {
   const { bookings, updateBookingStatus } = useData()
