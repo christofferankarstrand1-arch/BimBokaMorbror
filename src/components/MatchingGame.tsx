@@ -4,34 +4,16 @@ interface GameItem {
   id: string
   word: string
   image: string
+  ringColor: string
 }
 
 const GAME_ITEMS: GameItem[] = [
-  { id: 'hund', word: 'Hund', image: 'hund' },
-  { id: 'tomte', word: 'Tomte', image: 'tomte' },
-  { id: 'morbror', word: 'Morbror', image: 'morbror' },
-  { id: 'mamma', word: 'Mamma', image: 'mamma' },
-  { id: 'pappa', word: 'Pappa', image: 'pappa' },
-  { id: 'apa', word: 'Apa', image: 'apa' },
+  { id: 'mamma', word: 'Mamma', image: '/images/mammasandra.jpg', ringColor: 'ring-pink-400' },
+  { id: 'pappa', word: 'Pappa', image: '/images/pappalukas.jpg', ringColor: 'ring-blue-400' },
+  { id: 'morbror', word: 'Morbror', image: '/images/Christoffer-morbror.JPG', ringColor: 'ring-green-400' },
+  { id: 'hund', word: 'Hund', image: '/images/hund.jpeg', ringColor: 'ring-amber-400' },
+  { id: 'apa', word: 'Apa', image: '/images/apa.jpeg', ringColor: 'ring-orange-400' },
 ]
-
-const IMAGES: Record<string, string> = {
-  hund: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z',
-  tomte: 'M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5',
-  morbror: 'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z',
-  mamma: 'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z',
-  pappa: 'M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z',
-  apa: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z',
-}
-
-const COLORS: Record<string, string> = {
-  hund: 'bg-amber-400',
-  tomte: 'bg-red-500',
-  morbror: 'bg-blue-500',
-  mamma: 'bg-pink-500',
-  pappa: 'bg-green-500',
-  apa: 'bg-orange-500',
-}
 
 function shuffle<T>(array: T[]): T[] {
   const arr = [...array]
@@ -102,22 +84,19 @@ export function MatchingGame() {
             key={item.id}
             onClick={() => handleImageClick(item.id)}
             disabled={matches.includes(item.id)}
-            className={`aspect-square rounded-2xl flex items-center justify-center text-white text-4xl font-bold transition-all ${
-              COLORS[item.image]
-            } ${
+            className={`aspect-square rounded-2xl overflow-hidden transition-all ${
               matches.includes(item.id)
                 ? 'opacity-30 scale-90'
                 : selectedImage === item.id
-                ? 'ring-4 ring-sage-600 scale-105'
-                : 'hover:scale-105 shadow-lg'
+                ? `ring-4 ${item.ringColor} scale-105`
+                : 'hover:scale-105 shadow-lg ring-2 ring-warm-200'
             }`}
           >
-            <div className="text-center">
-              <svg className="w-16 h-16 mx-auto" viewBox="0 0 24 24" fill="currentColor">
-                <path d={IMAGES[item.image]} />
-              </svg>
-              <div className="text-sm mt-1 opacity-80">{item.word.charAt(0)}</div>
-            </div>
+            <img 
+              src={item.image} 
+              alt={item.word}
+              className="w-full h-full object-cover"
+            />
           </button>
         ))}
       </div>
