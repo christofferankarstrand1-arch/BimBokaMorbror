@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom'
-import { Baby, Hand, Gamepad2, CloudSun, Wrench, AlertCircle, Plus } from 'lucide-react'
+import { Baby, Hand, Gamepad2, CloudSun, Wrench, AlertCircle, Plus, Send } from 'lucide-react'
 import { useData } from '../contexts/DataContext'
 import { useAuth } from '../contexts/AuthContext'
 import { BookingType } from '../lib/supabase'
 
 const BOOKING_TYPES: { type: BookingType; label: string; icon: typeof Baby; duration: number; color: string }[] = [
   { type: 'barnpassning', label: 'Barnpassning', icon: Baby, duration: 120, color: 'bg-rose-500' },
-  { type: 'bim-nar-inte', label: 'Bim nar inte', icon: Hand, duration: 30, color: 'bg-amber-500' },
+  { type: 'bim-nar-inte', label: 'Bim ar inte med', icon: Hand, duration: 30, color: 'bg-amber-500' },
   { type: 'lekstund', label: 'Lekstund', icon: Gamepad2, duration: 60, color: 'bg-green-500' },
   { type: 'promenad', label: 'Promenad', icon: CloudSun, duration: 60, color: 'bg-blue-500' },
   { type: 'bygga', label: 'Bygga/Montera', icon: Wrench, duration: 90, color: 'bg-purple-500' },
@@ -14,7 +14,7 @@ const BOOKING_TYPES: { type: BookingType; label: string; icon: typeof Baby; dura
 ]
 
 export function Dashboard() {
-  const { bookings } = useData()
+  const { bookings, updateBookingStatus } = useData()
   const { user } = useAuth()
 
   const upcomingBookings = bookings
@@ -23,6 +23,11 @@ export function Dashboard() {
     .slice(0, 3)
 
   const pendingBookings = bookings.filter(b => b.status === 'forfragan')
+  const draftBookings = bookings.filter(b => b.status === 'utkast')
+
+  const sendDraftToMorbror = (id: string) => {
+    updateBookingStatus(id, 'forfragan')
+  }
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr)
@@ -60,6 +65,29 @@ export function Dashboard() {
         <Plus size={20} />
         Ny bokning
       </Link>
+
+      {draftBookings.length > 0 && (
+        <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
+          <h3 className="font-semibold text-purple-800 mb-3">
+            Bim vill traffa morbror! ({draftBookings.length})
+          </h3>
+          {draftBookings.map(booking => (
+            <div key={booking.id} className="flex justify-between items-center bg-white rounded-lg p-3 mb-2 last:mb-0">
+              <div>
+                <div className="font-medium text-gray-800">{getTypeLabel(booking.type)}</div>
+                <div className="text-sm text-gray-500">{booking.description}</div>
+              </div>
+              <button
+                onClick={() => sendDraftToMorbror(booking.id)}
+                className="flex items-center gap-1 bg-purple-600 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-purple-700"
+              >
+                <Send size={16} />
+                Skicka
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
 
       {pendingBookings.length > 0 && (
         <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">

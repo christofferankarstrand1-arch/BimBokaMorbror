@@ -1,23 +1,26 @@
 import { useState } from 'react'
-import { Heart, Footprints, Blocks, Hand, Gamepad2 } from 'lucide-react'
+import { Heart, Footprints, Blocks, Hand, Gamepad2, Star, Check } from 'lucide-react'
 import { useData } from '../contexts/DataContext'
 import { useAuth } from '../contexts/AuthContext'
 import { BookingType } from '../lib/supabase'
 import { MatchingGame } from '../components/MatchingGame'
 
-const BIM_OPTIONS: { type: BookingType; label: string; icon: typeof Heart; color: string }[] = [
-  { type: 'lekstund', label: 'Lek', icon: Gamepad2, color: 'bg-pink-500' },
-  { type: 'promenad', label: 'Promenad', icon: Footprints, color: 'bg-blue-500' },
-  { type: 'bygga', label: 'Bygga', icon: Blocks, color: 'bg-purple-500' },
-  { type: 'bim-nar-inte', label: 'Hamta hogt', icon: Hand, color: 'bg-amber-500' },
+const BIM_OPTIONS: { type: BookingType; label: string; icon: typeof Heart; color: string; emoji: string }[] = [
+  { type: 'lekstund', label: 'Leka', icon: Gamepad2, color: 'bg-pink-500', emoji: '🎮' },
+  { type: 'promenad', label: 'Ga ut', icon: Footprints, color: 'bg-blue-500', emoji: '🚶' },
+  { type: 'bygga', label: 'Bygga', icon: Blocks, color: 'bg-purple-500', emoji: '🧱' },
+  { type: 'bim-nar-inte', label: 'Hjalp', icon: Hand, color: 'bg-amber-500', emoji: '🖐️' },
 ]
 
 export function BimDashboard() {
-  const { addBooking, getTemplateForType } = useData()
+  const { addBooking, getTemplateForType, bookings } = useData()
   const { user } = useAuth()
   const [showGame, setShowGame] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [selectedType, setSelectedType] = useState<BookingType | null>(null)
+  const [showSuccess, setShowSuccess] = useState(false)
+
+  const pendingFromBim = bookings.filter(b => b.status === 'utkast' && b.created_by === user?.id)
 
   const handleSelect = (type: BookingType) => {
     setSelectedType(type)
@@ -28,12 +31,21 @@ export function BimDashboard() {
     if (!selectedType || !user) return
 
     const template = getTemplateForType(selectedType)
+    const typeLabels: Record<BookingType, string> = {
+      barnpassning: 'traffa morbror',
+      lekstund: 'leka med morbror',
+      promenad: 'ga ut med morbror',
+      bygga: 'bygga med morbror',
+      'bim-nar-inte': 'fa hjalp av morbror',
+      akuthjalp: 'traffa morbror',
+    }
+    
     addBooking({
       type: selectedType,
       date: new Date().toISOString().split('T')[0],
       time: '12:00',
       duration: 60,
-      description: 'Bim vill traffa morbror!',
+      description: `Bim vill ${typeLabels[selectedType]}!`,
       status: 'utkast',
       created_by: user.id,
       checklist: template.map((text, i) => ({ id: String(i), text, checked: false })),
@@ -41,6 +53,8 @@ export function BimDashboard() {
 
     setShowConfirm(false)
     setSelectedType(null)
+    setShowSuccess(true)
+    setTimeout(() => setShowSuccess(false), 3000)
   }
 
   if (showGame) {
@@ -60,9 +74,32 @@ export function BimDashboard() {
   return (
     <div className="space-y-6">
       <div className="text-center">
+        <img 
+          src="/images/morbror-avatar.png" 
+          alt="Morbror" 
+          className="w-24 h-24 rounded-full mx-auto mb-3 ring-4 ring-sage-300"
+        />
         <h2 className="text-3xl font-bold text-sage-700 mb-2">Hej Bim!</h2>
-        <p className="text-xl text-warm-600">Vad vill du gora?</p>
+        <p className="text-xl text-warm-600">Vad vill du gora med morbror?</p>
       </div>
+
+      {showSuccess && (
+        <div className="bg-green-100 border-2 border-green-300 rounded-2xl p-4 text-center animate-pulse">
+          <Check size={48} className="mx-auto text-green-600 mb-2" />
+          <p className="text-xl font-bold text-green-700">Bra jobbat!</p>
+          <p className="text-green-600">Mamma eller pappa skickar till morbror</p>
+        </div>
+      )}
+
+      {pendingFromBim.length > 0 && (
+        <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-4 text-center">
+          <Star size={32} className="mx-auto text-amber-500 mb-2" />
+          <p className="text-lg font-bold text-amber-700">
+            Du har {pendingFromBim.length} onskning{pendingFromBim.length > 1 ? 'ar' : ''}!
+          </p>
+          <p className="text-amber-600 text-sm">Mamma eller pappa maste saga ja</p>
+        </div>
+      )}
 
       <button
         onClick={() => handleSelect('barnpassning')}
@@ -73,13 +110,13 @@ export function BimDashboard() {
       </button>
 
       <div className="grid grid-cols-2 gap-4">
-        {BIM_OPTIONS.map(({ type, label, icon: Icon, color }) => (
+        {BIM_OPTIONS.map(({ type, label, color, emoji }) => (
           <button
             key={type}
             onClick={() => handleSelect(type)}
             className={`${color} text-white py-6 rounded-2xl text-lg font-bold shadow-md hover:shadow-lg transition-all transform hover:scale-105`}
           >
-            <Icon size={36} className="mx-auto mb-1" />
+            <span className="text-3xl block mb-1">{emoji}</span>
             {label}
           </button>
         ))}
@@ -89,6 +126,7 @@ export function BimDashboard() {
         onClick={() => setShowGame(true)}
         className="w-full bg-gradient-to-r from-green-500 to-teal-500 text-white py-6 rounded-2xl text-xl font-bold shadow-md hover:shadow-lg transition-all"
       >
+        <span className="text-3xl mr-2">🎯</span>
         Spela spel!
       </button>
 
